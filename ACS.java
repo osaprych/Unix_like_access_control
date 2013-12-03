@@ -2,9 +2,11 @@
 // UT EID os3587
 // CS ID osaprych
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
+// import java.util.ArrayList;
+// import java.util.Arrays;
+// import java.util.Scanner;
+// import java.util.HashMap;
 import java.io.*;
 
 class User{
@@ -26,16 +28,18 @@ class Group{
         groupUsers = new ArrayList<User>();
     }
 
-    public void addUser(User u){
-        groupUsers.add(u);
-    }
+    // public void addUser(User u){
+    //     groupUsers.add(u);
+    // }
 }
 
 class UnixFile{
+    public String fileName;
     public String mode;
     public User owner;
 
-    public UnixFile(String m, User o){
+    public UnixFile(String n, User o, String m){
+        fileName = n;
         mode = this.convertMode(m);
         owner = o;
     }
@@ -56,43 +60,101 @@ class UnixFile{
     }
 }
      
-class ACS
-{
+class ACS{
+    static HashMap<String, Group> groups = new HashMap<String, Group>();
+    static HashMap<String, User> users = new HashMap<String, User>();
+    static HashMap<String, UnixFile> files = new HashMap<String, UnixFile>();
+
+    public static void readUserList(File userListFile) throws IOException{
+        Scanner userList = new Scanner(new FileReader(userListFile));
+        String line;
+        int counter = 0;
+        while(userList.hasNextLine()){
+            line = userList.nextLine();
+            String[] result = line.split(" ");
+            // System.out.println(Arrays.toString(result));
+            if(result.length == 2){
+                if(!groups.containsKey(result[1])){
+                    Group g = new Group(result[1]);
+                    groups.put(result[1], g);
+                    // groups.add(g);
+                }
+                users.put(result[0], new User(result[0], groups.get(result[1])));
+                // strUsers.put(result[0], counter);
+            }
+
+            counter++;
+        }
+    }
+
+    public static void readFileList(File fileListFile) throws IOException{
+        Scanner fileList = new Scanner(new FileReader(fileListFile));
+        String line;
+        // int counter = 0;
+        while(fileList.hasNextLine()){
+            line = fileList.nextLine();
+            String[] result = line.split(" ");
+            System.out.println(Arrays.toString(result));
+
+            UnixFile f = new UnixFile(result[0], users.get(result[1]), result[2]);
+            files.put(result[0], f);
+        }
+    }
+
+    public static void printHashMap(HashMap m){
+        Iterator iterator = m.keySet().iterator();  
+   
+        while (iterator.hasNext()) {  
+            String key = iterator.next().toString();  
+            String value = m.get(key).toString();  
+   
+            System.out.println(key + " " + value);  
+        }
+    }
+
     public static void main(String args[]) throws IOException{
+        // ArrayList<String> strGroups = new ArrayList<String>();
+        // ArrayList<Group> groups = new ArrayList<Group>();
+        // ArrayList<User> users = new ArrayList<User>();
+
         // check for -r option
         if (!args[0].equals("-r")){
             // create a root user, a member of a group root
             Group rootGroup = new Group("root");
             User rootUser = new User("root", rootGroup);
-            rootGroup.addUser(rootUser);
+            groups.put("root", rootGroup);
+            users.put("root", rootUser);
+            // rootGroup.addUser(rootUser);
 
             // read userList
-            // read fileList
             File userListFile = new File(args[0]);
             System.out.println("args[0] = " + args[0]);
+            readUserList(userListFile);
+
+            printHashMap(users);
+            printHashMap(groups);
+            
+            // read fileList
             File fileListFile = new File(args[1]);
             System.out.println("args[1] = " + args[1]);
-
-            Scanner userList = new Scanner(new FileReader(userListFile));
-            String line;
-            while(userList.hasNextLine()){
-                line = userList.nextLine();
-                String[] result = line.split(" ");
-                // System.out.println(Arrays.toString(result));
-                
-            }
-                
-
+            readFileList(fileListFile);
+            printHashMap(files);            
         }
-
 
         else{
             // read userList
-            // read fileList
             File userListFile = new File(args[1]);
             System.out.println("args[1] = " + args[1]);
+            readUserList(userListFile);
+
+            printHashMap(users);
+            printHashMap(groups);
+
+            // read fileList
             File fileListFile = new File(args[2]);
             System.out.println("args[2] = " + args[2]);
+            readFileList(fileListFile);
+            printHashMap(files);
         }
           
 
