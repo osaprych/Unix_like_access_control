@@ -3,10 +3,6 @@
 // CS ID osaprych
 
 import java.util.*;
-// import java.util.ArrayList;
-// import java.util.Arrays;
-// import java.util.Scanner;
-// import java.util.HashMap;
 import java.io.*;
 
 class User{
@@ -52,11 +48,22 @@ class UnixFile{
         String modeTemp = "";
         for(int j = 0; j < s.length(); j++){
             int x = Character.getNumericValue(s.charAt(j));
-            modeTemp = modeTemp + Integer.toBinaryString(x);
+            if(x == 0){
+                modeTemp = modeTemp + "000";
+            }
+            // else if(x == 1){
+            //     modeTemp = modeTemp + "001";
+            // }
+            else
+                modeTemp = modeTemp + Integer.toBinaryString(x);
         }
         // System.out.println(s);
         // System.out.println(modeTemp);
         return modeTemp;
+    }
+
+    public void resetMode(String m){
+        mode = this.convertMode(m);
     }
 }
      
@@ -112,10 +119,152 @@ class ACS{
         }
     }
 
+    public static int actionRead(String[] action){
+        if(action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])){
+            // user is owner of the file
+            if(users.get(action[1]).equals(files.get(action[2]).owner.userName)){
+                if(files.get(action[2]).mode.charAt(3) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+            // file belongs to user's group
+            else if(users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
+                if(files.get(action[2]).mode.charAt(6) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+            // other
+            else if(!users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
+                // System.out.println("mode = " + files.get(action[2]).mode);
+                if(files.get(action[2]).mode.charAt(9) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        }
+        else{
+            System.out.println("Invalid input!");
+        }
+        return 0;
+    }
+
+    public static int actionWrite(String[] action){
+        if(action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])){
+            // user is owner of the file
+            if(users.get(action[1]).equals(files.get(action[2]).owner.userName)){
+                if(files.get(action[2]).mode.charAt(4) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+            // file belongs to user's group
+            else if(users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
+                if(files.get(action[2]).mode.charAt(4) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+            // other
+            else if(!users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
+                // System.out.println("mode = " + files.get(action[2]).mode);
+                if(files.get(action[2]).mode.charAt(10) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        }
+        else{
+            System.out.println("Invalid input!");
+        }
+        return 0;
+    }
+
+    public static int actionExecute(String[] action){
+        if(action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])){
+            // user is owner of the file
+            if(users.get(action[1]).equals(files.get(action[2]).owner.userName)){
+                if(files.get(action[2]).mode.charAt(5) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+            // file belongs to user's group
+            else if(users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
+                if(files.get(action[2]).mode.charAt(8) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+            // other
+            else if(!users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
+                // System.out.println("mode = " + files.get(action[2]).mode);
+                if(files.get(action[2]).mode.charAt(11) == '1'){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        }
+        else{
+            System.out.println("Invalid input!");
+        }
+        return 0;
+    }
+
+    public static int actionChmod(String[] action){
+        if(action.length == 4){
+            // if file owner or root user
+            if( (files.get(action[2]).owner == users.get(action[1])) || (users.get(action[1]).userName.equals("root")) ){
+                files.get(action[2]).resetMode(action[3]);
+                return 1;
+            }
+        }
+        else{
+            System.out.println("Invalid input!");
+        }
+        return 0;
+    }
+
+    public static void printResult(int result, String[] action){
+        if((action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])) ||
+            (action.length == 4 && users.containsKey(action[1]) && files.containsKey(action[2]) && action[0].equals("chmod"))){
+            System.out.print(action[0] + " ");
+            // file owner user
+            if(files.get(action[2]).mode.charAt(0) == '1')
+                System.out.print(files.get(action[2]).owner.userName + " ");
+            // running user
+            else
+                System.out.print(action[1] + " ");
+
+            // file owner's group
+            if(files.get(action[2]).mode.charAt(1) == '1')
+                System.out.print(files.get(action[2]).owner.group.groupName + " " + result + "\n");
+            // running user's group
+            else
+                System.out.print(users.get(action[1]).group.groupName + " " + result + "\n");
+        }
+    }
+
     public static void main(String args[]) throws IOException{
-        // ArrayList<String> strGroups = new ArrayList<String>();
-        // ArrayList<Group> groups = new ArrayList<Group>();
-        // ArrayList<User> users = new ArrayList<User>();
 
         // check for -r option
         if (!args[0].equals("-r")){
@@ -156,7 +305,39 @@ class ACS{
             readFileList(fileListFile);
             printHashMap(files);
         }
-          
+        
+        String input = "";
+
+        // while(!"EXIT")
+        while(true){
+            Scanner in = new Scanner(System.in);
+            System.out.println("\nEnter action");
+            input = in.nextLine();
+            String[] arrayInput = input.split(" ");
+            int result = 0;
+            if(arrayInput[0].toLowerCase().equals("read")){
+                result = actionRead(arrayInput);
+                printResult(result, arrayInput);
+            }
+            else if(arrayInput[0].toLowerCase().equals("write")){
+                result = actionWrite(arrayInput);
+                printResult(result, arrayInput);
+            }
+            else if(arrayInput[0].toLowerCase().equals("execute")){
+                result = actionExecute(arrayInput);
+                printResult(result, arrayInput);
+            }
+            else if(arrayInput[0].toLowerCase().equals("chmod")){
+                result = actionChmod(arrayInput);
+                printResult(result, arrayInput);
+            }
+            else if(arrayInput[0].toLowerCase().equals("exit")){
+                break;
+            }
+            else{
+                System.out.println("Invalid input!");
+            }
+        }
 
         // while(!"EXIT")
         // prompt the user for input of format   action user file
@@ -165,23 +346,5 @@ class ACS{
         // print the current state of the system to state.log 
         // end the program
 
-
-          // int a;
-          // float b;
-          // String s;
-     
-          // Scanner in = new Scanner(System.in);
-     
-          // System.out.println("Enter a string");
-          // s = in.nextLine();
-          // System.out.println("You entered string "+s);
-     
-          // System.out.println("Enter an integer");
-          // a = in.nextInt();
-          // System.out.println("You entered integer "+a);
-     
-          // System.out.println("Enter a float");
-          // b = in.nextFloat();
-          // System.out.println("You entered float "+b);   
        }
     }
