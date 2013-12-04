@@ -2,6 +2,11 @@
 // UT EID os3587
 // CS ID osaprych
 
+/*
+Please note that since I'm using HashMap to store files, 
+the order in whitch the files are written to state.log file might be different from the order they were in fileList.
+*/
+
 import java.util.*;
 import java.io.*;
 
@@ -19,6 +24,10 @@ class User{
         group = g;
         root = r;
     }
+
+    public boolean isRoot(){
+        return root;
+    }
 }
 
 class Group{
@@ -29,10 +38,6 @@ class Group{
         groupName = n;
         groupUsers = new ArrayList<User>();
     }
-
-    // public void addUser(User u){
-    //     groupUsers.add(u);
-    // }
 }
 
 class UnixFile{
@@ -48,22 +53,24 @@ class UnixFile{
 
     public String convertMode(String s){
         // convert octal string to binary
-        // file method
-        // int i = 7755;
-        // String s = Integer.toString(i);
         String modeTemp = "";
         for(int j = 0; j < s.length(); j++){
             int x = Character.getNumericValue(s.charAt(j));
             if(x == 0){
                 modeTemp = modeTemp + "000";
             }
-            // else if(x == 1){
-            //     modeTemp = modeTemp + "001";
-            // }
+            else if(x == 1){
+                modeTemp = modeTemp + "001";
+            }
+            else if(x == 2){
+                modeTemp = modeTemp + "010";
+            }
+            else if(x == 3){
+                modeTemp = modeTemp + "011";
+            }
             else
                 modeTemp = modeTemp + Integer.toBinaryString(x);
         }
-        // System.out.println(s);
         // System.out.println(modeTemp);
         return modeTemp;
     }
@@ -81,29 +88,22 @@ class ACS{
     public static void readUserList(File userListFile) throws IOException{
         Scanner userList = new Scanner(new FileReader(userListFile));
         String line;
-        int counter = 0;
         while(userList.hasNextLine()){
             line = userList.nextLine();
             String[] result = line.split(" ");
-            // System.out.println(Arrays.toString(result));
             if(result.length == 2){
                 if(!groups.containsKey(result[1])){
                     Group g = new Group(result[1]);
                     groups.put(result[1], g);
-                    // groups.add(g);
                 }
                 users.put(result[0], new User(result[0], groups.get(result[1])));
-                // strUsers.put(result[0], counter);
             }
-
-            counter++;
         }
     }
 
     public static void readFileList(File fileListFile) throws IOException{
         Scanner fileList = new Scanner(new FileReader(fileListFile));
         String line;
-        // int counter = 0;
         while(fileList.hasNextLine()){
             line = fileList.nextLine();
             String[] result = line.split(" ");
@@ -115,10 +115,10 @@ class ACS{
     }
 
     public static void printHashMap(HashMap m){
-        Iterator iterator = m.keySet().iterator();  
+        Iterator i = m.keySet().iterator();  
    
-        while (iterator.hasNext()) {  
-            String key = iterator.next().toString();  
+        while (i.hasNext()) {  
+            String key = i.next().toString();  
             String value = m.get(key).toString();  
    
             System.out.println(key + " " + value);  
@@ -127,9 +127,10 @@ class ACS{
 
     public static int actionRead(String[] action){
         if(action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])){
-            // user is owner of the file
-            if(users.get(action[1]).equals(files.get(action[2]).owner.userName)){
-                if(files.get(action[2]).mode.charAt(3) == '1'){
+            // user is owner of the file or root user
+            if( users.get(action[1]).equals(files.get(action[2]).owner.userName) || 
+                    users.get(action[1]).isRoot() ){
+                if(files.get(action[2]).mode.charAt(3) == '1' || users.get(action[1]).isRoot()){
                     return 1;
                 }
                 else{
@@ -147,7 +148,6 @@ class ACS{
             }
             // other
             else if(!users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
-                // System.out.println("mode = " + files.get(action[2]).mode);
                 if(files.get(action[2]).mode.charAt(9) == '1'){
                     return 1;
                 }
@@ -164,9 +164,9 @@ class ACS{
 
     public static int actionWrite(String[] action){
         if(action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])){
-            // user is owner of the file
-            if(users.get(action[1]).equals(files.get(action[2]).owner.userName)){
-                if(files.get(action[2]).mode.charAt(4) == '1'){
+            // user is owner of the file or root user
+            if(users.get(action[1]).equals(files.get(action[2]).owner.userName) || users.get(action[1]).isRoot() ){
+                if(files.get(action[2]).mode.charAt(4) == '1' || users.get(action[1]).isRoot()){
                     return 1;
                 }
                 else{
@@ -184,7 +184,6 @@ class ACS{
             }
             // other
             else if(!users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
-                // System.out.println("mode = " + files.get(action[2]).mode);
                 if(files.get(action[2]).mode.charAt(10) == '1'){
                     return 1;
                 }
@@ -201,9 +200,9 @@ class ACS{
 
     public static int actionExecute(String[] action){
         if(action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])){
-            // user is owner of the file
-            if(users.get(action[1]).equals(files.get(action[2]).owner.userName)){
-                if(files.get(action[2]).mode.charAt(5) == '1'){
+            // user is owner of the file or root
+            if( users.get(action[1]).equals(files.get(action[2]).owner.userName) || users.get(action[1]).isRoot() ){
+                if(files.get(action[2]).mode.charAt(5) == '1' || users.get(action[1]).isRoot()){
                     return 1;
                 }
                 else{
@@ -221,7 +220,6 @@ class ACS{
             }
             // other
             else if(!users.get(action[1]).group.groupName.equals(files.get(action[2]).owner.group.groupName)){
-                // System.out.println("mode = " + files.get(action[2]).mode);
                 if(files.get(action[2]).mode.charAt(11) == '1'){
                     return 1;
                 }
@@ -237,10 +235,9 @@ class ACS{
     }
 
     public static int actionChmod(String[] action){
-        if(action.length == 4){
+        if(action.length == 4 && action[3].length() == 4){
             // if file owner or root user
-            // change to check for root user!!!!!!!!!!!!!!!!
-            if( (files.get(action[2]).owner == users.get(action[1])) || (users.get(action[1]).userName.equals("root")) ){ 
+            if( (files.get(action[2]).owner == users.get(action[1])) || users.get(action[1]).isRoot() ){
                 files.get(action[2]).resetMode(action[3]);
                 return 1;
             }
@@ -254,7 +251,9 @@ class ACS{
     public static void printResult(int result, String[] action){
         if((action.length == 3 && users.containsKey(action[1]) && files.containsKey(action[2])) ||
             (action.length == 4 && users.containsKey(action[1]) && files.containsKey(action[2]) && action[0].equals("chmod"))){
+
             System.out.print(action[0] + " ");
+
             // file owner user
             if(files.get(action[2]).mode.charAt(0) == '1')
                 System.out.print(files.get(action[2]).owner.userName + " ");
@@ -271,6 +270,83 @@ class ACS{
         }
     }
 
+    public static void writeLog() throws IOException{
+        File logFile = new File("state.log");
+        BufferedWriter bw = new BufferedWriter(new FileWriter(logFile));
+        Iterator i = files.keySet().iterator();  
+   
+        while (i.hasNext()) {  
+            String key = i.next().toString();
+
+            // MODE
+
+            // owner
+            if(files.get(key).mode.charAt(3) == '1')
+                bw.write("r");
+            else
+                bw.write("-");
+
+            if(files.get(key).mode.charAt(4) == '1')
+                bw.write("w");
+            else
+                bw.write("-");
+
+            if(files.get(key).mode.charAt(0) == '1' && files.get(key).mode.charAt(5) == '0')
+                bw.write("S");
+            else if(files.get(key).mode.charAt(0) == '1' && files.get(key).mode.charAt(5) == '1')
+                bw.write("s");
+            else if(files.get(key).mode.charAt(0) == '0' && files.get(key).mode.charAt(5) == '1')
+                bw.write("x");
+            else
+                bw.write("-");
+
+            // group
+            if(files.get(key).mode.charAt(6) == '1')
+                bw.write("r");
+            else
+                bw.write("-");
+
+            if(files.get(key).mode.charAt(7) == '1')
+                bw.write("w");
+            else
+                bw.write("-");
+
+            if(files.get(key).mode.charAt(1) == '1' && files.get(key).mode.charAt(8) == '0')
+                bw.write("S");
+            else if(files.get(key).mode.charAt(1) == '1' && files.get(key).mode.charAt(8) == '1')
+                bw.write("s");
+            else if(files.get(key).mode.charAt(1) == '0' && files.get(key).mode.charAt(8) == '1')
+                bw.write("x");
+            else
+                bw.write("-");
+
+            // other
+            if(files.get(key).mode.charAt(9) == '1')
+                bw.write("r");
+            else
+                bw.write("-");
+
+            if(files.get(key).mode.charAt(10) == '1')
+                bw.write("w");
+            else
+                bw.write("-");
+
+            if(files.get(key).mode.charAt(2) == '1' && files.get(key).mode.charAt(11) == '0')
+                bw.write("T");
+            else if(files.get(key).mode.charAt(2) == '1' && files.get(key).mode.charAt(11) == '1')
+                bw.write("t");
+            else if(files.get(key).mode.charAt(2) == '0' && files.get(key).mode.charAt(11) == '1')
+                bw.write("x");
+            else
+                bw.write("-");
+
+            bw.write(" " + files.get(key).owner.userName.toLowerCase() + " " + files.get(key).owner.group.groupName.toLowerCase()
+             + " " + key.toLowerCase() + "\n");
+        }
+
+        bw.close();
+    }
+
     public static void main(String args[]) throws IOException{
 
         // check for -r option
@@ -280,7 +356,6 @@ class ACS{
             User rootUser = new User("root", rootGroup, true);
             groups.put("root", rootGroup);
             users.put("root", rootUser);
-            // rootGroup.addUser(rootUser);
 
             // read userList
             File userListFile = new File(args[0]);
@@ -339,19 +414,12 @@ class ACS{
                 printResult(result, arrayInput);
             }
             else if(arrayInput[0].toLowerCase().equals("exit")){
+                writeLog();
                 break;
             }
             else{
                 System.out.println("Invalid input!");
             }
         }
-
-        // while(!"EXIT")
-        // prompt the user for input of format   action user file
-        // output 0 or 1 depending on whether request was allowed or not.
-
-        // print the current state of the system to state.log 
-        // end the program
-
-       }
     }
+}

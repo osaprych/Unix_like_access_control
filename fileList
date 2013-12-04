@@ -1,4 +1,4 @@
-file1 user1 0755
-file2 user1 0700
-file3 user2 0655
-file4 user3 0000
+file1 user1 7755
+file2 user1 6755
+file3 user2 6765
+file4 user3 1754
