@@ -8,10 +8,16 @@ import java.io.*;
 class User{
     public String userName;
     public Group group;
+    public boolean root;
 
     public User(String n, Group g){
+        this(n, g, false);
+    }
+
+    public User(String n, Group g, boolean r){
         userName = n;
         group = g;
+        root = r;
     }
 }
 
@@ -233,7 +239,8 @@ class ACS{
     public static int actionChmod(String[] action){
         if(action.length == 4){
             // if file owner or root user
-            if( (files.get(action[2]).owner == users.get(action[1])) || (users.get(action[1]).userName.equals("root")) ){
+            // change to check for root user!!!!!!!!!!!!!!!!
+            if( (files.get(action[2]).owner == users.get(action[1])) || (users.get(action[1]).userName.equals("root")) ){ 
                 files.get(action[2]).resetMode(action[3]);
                 return 1;
             }
@@ -270,7 +277,7 @@ class ACS{
         if (!args[0].equals("-r")){
             // create a root user, a member of a group root
             Group rootGroup = new Group("root");
-            User rootUser = new User("root", rootGroup);
+            User rootUser = new User("root", rootGroup, true);
             groups.put("root", rootGroup);
             users.put("root", rootUser);
             // rootGroup.addUser(rootUser);
