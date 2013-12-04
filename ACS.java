@@ -401,29 +401,36 @@ class ACS{
             input = in.nextLine();
             String[] arrayInput = input.split(" ");
             int result = 0;
-            if(arrayInput[0].toLowerCase().equals("read")){
-                result = actionRead(arrayInput);
-                printResult(result, arrayInput);
-            }
-            else if(arrayInput[0].toLowerCase().equals("write")){
-                result = actionWrite(arrayInput);
-                printResult(result, arrayInput);
-            }
-            else if(arrayInput[0].toLowerCase().equals("execute")){
-                result = actionExecute(arrayInput);
-                printResult(result, arrayInput);
-            }
-            else if(arrayInput[0].toLowerCase().equals("chmod")){
-                result = actionChmod(arrayInput);
-                printResult(result, arrayInput);
+            if(!arrayInput[0].toLowerCase().equals("exit") && users.containsKey(arrayInput[1]) && files.containsKey(arrayInput[2])){
+                if(arrayInput[0].toLowerCase().equals("read")){
+                    result = actionRead(arrayInput);
+                    printResult(result, arrayInput);
+                }
+                else if(arrayInput[0].toLowerCase().equals("write")){
+                    result = actionWrite(arrayInput);
+                    printResult(result, arrayInput);
+                }
+                else if(arrayInput[0].toLowerCase().equals("execute")){
+                    result = actionExecute(arrayInput);
+                    printResult(result, arrayInput);
+                }
+                else if(arrayInput[0].toLowerCase().equals("chmod")){
+                    result = actionChmod(arrayInput);
+                    printResult(result, arrayInput);
+                }
+                // else if(arrayInput[0].toLowerCase().equals("exit")){
+                //     writeLog();
+                //     break;
+                // }
+                // else
+                //     System.out.println("Invalid input!");
             }
             else if(arrayInput[0].toLowerCase().equals("exit")){
-                writeLog();
-                break;
+                    writeLog();
+                    break;
             }
-            else{
+            else
                 System.out.println("Invalid input!");
-            }
         }
     }
 }
