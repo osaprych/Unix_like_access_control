@@ -83,7 +83,7 @@ class UnixFile{
 class ACS{
     static HashMap<String, Group> groups = new HashMap<String, Group>();
     static HashMap<String, User> users = new HashMap<String, User>();
-    static HashMap<String, UnixFile> files = new HashMap<String, UnixFile>();
+    static LinkedHashMap<String, UnixFile> files = new LinkedHashMap<String, UnixFile>();
 
     public static void readUserList(File userListFile) throws IOException{
         Scanner userList = new Scanner(new FileReader(userListFile));
