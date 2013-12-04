@@ -418,12 +418,6 @@ class ACS{
                     result = actionChmod(arrayInput);
                     printResult(result, arrayInput);
                 }
-                // else if(arrayInput[0].toLowerCase().equals("exit")){
-                //     writeLog();
-                //     break;
-                // }
-                // else
-                //     System.out.println("Invalid input!");
             }
             else if(arrayInput[0].toLowerCase().equals("exit")){
                     writeLog();
