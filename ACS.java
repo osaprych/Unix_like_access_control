@@ -401,7 +401,9 @@ class ACS{
             input = in.nextLine();
             String[] arrayInput = input.split(" ");
             int result = 0;
-            if(!arrayInput[0].toLowerCase().equals("exit") && users.containsKey(arrayInput[1]) && files.containsKey(arrayInput[2])){
+            if(arrayInput[0].toLowerCase().equals("read") || arrayInput[0].toLowerCase().equals("write") ||
+                arrayInput[0].toLowerCase().equals("execute") || arrayInput[0].toLowerCase().equals("chmod")
+                && users.containsKey(arrayInput[1]) && files.containsKey(arrayInput[2])){
                 if(arrayInput[0].toLowerCase().equals("read")){
                     result = actionRead(arrayInput);
                     printResult(result, arrayInput);
