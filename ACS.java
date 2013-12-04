@@ -111,7 +111,7 @@ class ACS{
         while(fileList.hasNextLine()){
             line = fileList.nextLine();
             String[] result = line.split(" ");
-            System.out.println(Arrays.toString(result));
+            // System.out.println(Arrays.toString(result));
 
             UnixFile f = new UnixFile(result[0], users.get(result[1]), result[2]);
             files.put(result[0], f);
@@ -363,33 +363,33 @@ class ACS{
 
             // read userList
             File userListFile = new File(args[0]);
-            System.out.println("args[0] = " + args[0]);
+            // System.out.println("args[0] = " + args[0]);
             readUserList(userListFile);
 
-            printHashMap(users);
-            printHashMap(groups);
+            // printHashMap(users);
+            // printHashMap(groups);
             
             // read fileList
             File fileListFile = new File(args[1]);
-            System.out.println("args[1] = " + args[1]);
+            // System.out.println("args[1] = " + args[1]);
             readFileList(fileListFile);
-            printHashMap(files);            
+            // printHashMap(files);            
         }
 
         else{
             // read userList
             File userListFile = new File(args[1]);
-            System.out.println("args[1] = " + args[1]);
+            // System.out.println("args[1] = " + args[1]);
             readUserList(userListFile);
 
-            printHashMap(users);
-            printHashMap(groups);
+            // printHashMap(users);
+            // printHashMap(groups);
 
             // read fileList
             File fileListFile = new File(args[2]);
-            System.out.println("args[2] = " + args[2]);
+            // System.out.println("args[2] = " + args[2]);
             readFileList(fileListFile);
-            printHashMap(files);
+            // printHashMap(files);
         }
         
         String input = "";
