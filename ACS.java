@@ -73,6 +73,15 @@ class UnixFile{
     public void resetMode(String m){
         mode = this.convertMode(m);
     }
+
+    public boolean newModeOK(String m){
+        for(int j = 0; j < m.length(); j++){
+            int x = Character.getNumericValue(m.charAt(j));
+            if(x > 7)
+                return false;
+        }
+        return true;
+    }
 }
      
 class ACS{
@@ -230,7 +239,7 @@ class ACS{
     }
 
     public static int actionChmod(String[] action){
-        if(action.length == 4 && action[3].length() == 4){
+        if(action.length == 4 && action[3].length() == 4 && files.get(action[2]).newModeOK(action[3])){
             // if file owner or root user
             if( (files.get(action[2]).owner == users.get(action[1])) || users.get(action[1]).isRoot() ){
                 files.get(action[2]).resetMode(action[3]);
